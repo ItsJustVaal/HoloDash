@@ -10,7 +10,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func ConnectDatase() *sql.DB {
+type Database struct {
+	Db *sql.DB
+}
+
+var Db *Database
+
+func ConnectDatase() (*Database, error) {
 	var envs map[string]string
 	envs, dberr := godotenv.Read(".env")
 
@@ -37,5 +43,6 @@ func ConnectDatase() *sql.DB {
 	}
 
 	fmt.Println("Connected!")
-	return db
+	Db := &Database{db}
+	return Db, nil
 }
