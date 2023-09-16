@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func ConnectDatase() {
+func ConnectDatase() *sql.DB {
 	var envs map[string]string
 	envs, dberr := godotenv.Read(".env")
 
@@ -18,28 +18,24 @@ func ConnectDatase() {
 		log.Fatal("Error loading .env file")
 	}
 
-    // converting port to int
+	// converting port to int
 	port, _ := strconv.Atoi(envs["DBPORT"])
 
-    // connection string
+	// connection string
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", envs["DBHOST"], port, envs["DBUSER"], envs["DBPASSWORD"], envs["DBNAME"])
 
 	// open database
 	db, err := sql.Open("postgres", psqlconn)
-	CheckError(err)
-
-	// close database
-	defer db.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// check db
 	err = db.Ping()
-	CheckError(err)
+	if dberr != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println("Connected!")
-}
-
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
+	return db
 }
